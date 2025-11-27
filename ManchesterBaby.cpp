@@ -34,13 +34,8 @@ int ManchesterBaby::getAccumulator() {
 }
 
 //constructor: assign every element to 0
-ManchesterBaby::ManchesterBaby() {
-    // explicitly use 32-bit zero values
-    accumulator = static_cast<int32_t>(0);
-    pi = static_cast<uint8_t>(0);
-    // ensure memory has memorySize elements, all initialized to 32-bit 0
-    memory.assign(memorySize, 0);
-}
+ManchesterBaby::ManchesterBaby(): currInst{0,0,0}, accumulator(0),pi(0),memory(memorySize, 0){}
+
 
 void ManchesterBaby::setMemorySize(uint8_t size) {
     if (size<32||size>64) {
@@ -111,7 +106,7 @@ void ManchesterBaby::execute() {
 }
 
 void ManchesterBaby::cycle() {
-    while (!isHalted()) {
+    while (isHalted()) {
         decode();
         execute();
     }
@@ -120,7 +115,7 @@ void ManchesterBaby::cycle() {
 
 
 
-bool ManchesterBaby::isHalted() {
+bool ManchesterBaby::isHalted()const {
     return isTerminated;
 }
 
