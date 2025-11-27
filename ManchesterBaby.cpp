@@ -106,7 +106,7 @@ void ManchesterBaby::execute() {
 }
 
 void ManchesterBaby::cycle() {
-    while (isHalted()) {
+    while (!isHalted()) {
         decode();
         execute();
     }
