@@ -10,11 +10,6 @@ using namespace std;
 
 class ManchesterBaby {
 private:
-    struct instruction {
-        int opcode;   // 6-bit opcode ,操作码
-        int mode;    // 2-bit addressing mode ,寻址方式
-        uint8_t address;  // 24-bit address ,地址码
-    };
     // addressing modes
     enum AddressingMode {
         DIRECT=0,
@@ -33,7 +28,13 @@ private:
         JNZ=6,
         STP=63
     };
-
+    
+    struct instruction {
+        Opcode opcode;   // 6-bit opcode ,操作码
+        AddressingMode mode;    // 2-bit addressing mode ,寻址方式
+        uint8_t address;  // 24-bit address ,地址码
+    };
+    
     instruction currInst; // current instruction ,当前指令
     vector<int32_t> memory; // 32-bit memory ,主存储器
     int32_t accumulator;    // 32-bit accumulator ,累加器
