@@ -96,6 +96,11 @@ string ManchesterBaby::fetch() {
 
 void ManchesterBaby::decode() {
     const string instructionStr=fetch();
+    if (instructionStr.size()!=32) {
+        cout<<"Error fetching instruction!"<<endl;
+        isTerminated=true;
+        return;
+    }
     currInst.opcode=static_cast<Opcode>(toInt(instructionStr.substr(0,6)));
     currInst.mode=static_cast<AddressingMode>(toInt(instructionStr.substr(6,2)));
     currInst.address=static_cast<uint8_t>(toInt(instructionStr.substr(8,24)));
