@@ -53,7 +53,7 @@ public:
     void execute();
     void cycle();
     // run f-d-e cycle()
-    bool isHalted();
+    bool isHalted() const;
     void getStatus();
 
 };
