@@ -29,6 +29,10 @@ string ManchesterBaby::toBinary(int32_t value) {
     return result;
 }
 
+int ManchesterBaby::getAccumulator() {
+    return accumulator;
+}
+
 //constructor: assign every element to 0
 ManchesterBaby::ManchesterBaby() {
     // explicitly use 32-bit zero values
@@ -37,6 +41,16 @@ ManchesterBaby::ManchesterBaby() {
     // ensure memory has memorySize elements, all initialized to 32-bit 0
     memory.assign(memorySize, 0);
 }
+
+void ManchesterBaby::setMemorySize(uint8_t size) {
+    if (size<32||size>64) {
+        cout<<"Invalid setting! Memory size should be between 32 and 64!"<<endl;
+        return;
+    }
+    memorySize=size;
+    memory.assign(memorySize, 0); //resize memory and initialize to 0
+}
+
 
 // get machine code from file
 bool ManchesterBaby::getCode(const string &filename) {
@@ -74,6 +88,31 @@ bool ManchesterBaby::getCode(const string &filename) {
 // fetch the program instruction
 string ManchesterBaby::fetch() {
     return toBinary(memory[pi++]);
+}
+
+void ManchesterBaby::decode() {
+    const string instructionStr=fetch();
+    currInst.opcode=static_cast<Opcode>(toInt(instructionStr.substr(0,6)));
+    currInst.mode=static_cast<AddressingMode>(toInt(instructionStr.substr(6,2)));
+    currInst.address=static_cast<uint8_t>(toInt(instructionStr.substr(8,24)));
+}
+
+void ManchesterBaby::execute() {
+
+}
+
+void ManchesterBaby::cycle() {
+    while (isHalted()) {
+        decode();
+        execute();
+    }
+}
+
+
+
+
+bool ManchesterBaby::isHalted() {
+    return isTerminated;
 }
 
 // print the current status of the Manchester Baby
