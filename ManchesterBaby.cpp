@@ -20,7 +20,7 @@ int32_t ManchesterBaby::toInt(const string &binaryStr) {
 
 // convert signed 32-bit value to 32-bit binary string
 string ManchesterBaby::toBinary(int32_t value) {
-    uint32_t u = static_cast<uint32_t>(value); // work with raw 32-bit pattern
+    auto u = static_cast<uint32_t>(value); // work with raw 32-bit pattern
     string result(32, '0');
     for (int i = 31; i >= 0; --i) {
         result[i] = (u & 1u) ? '1' : '0';     // set bit based on lowest bit of u
@@ -29,12 +29,16 @@ string ManchesterBaby::toBinary(int32_t value) {
     return result;
 }
 
-int ManchesterBaby::getAccumulator() {
+int ManchesterBaby::getAccumulator() const {
     return accumulator;
 }
 
 //constructor: assign every element to 0
-ManchesterBaby::ManchesterBaby(): currInst{0,0,0}, accumulator(0),pi(0),memory(memorySize, 0){}
+ManchesterBaby::ManchesterBaby()
+        : currInst{STP, DIRECT, 0},
+          accumulator(0),
+          pi(0),
+          memory(memorySize, 0) {}
 
 
 void ManchesterBaby::setMemorySize(uint8_t size) {
@@ -84,7 +88,7 @@ bool ManchesterBaby::getCode(const string &filename) {
 string ManchesterBaby::fetch() {
     if (pi>=memorySize) {
         isTerminated=true;
-        return string(32,0);
+        return string(32, '0');
     }
     return toBinary(memory[pi++]);
 }
@@ -111,8 +115,6 @@ void ManchesterBaby::cycle() {
         execute();
     }
 }
-
-
 
 
 bool ManchesterBaby::isHalted()const {
