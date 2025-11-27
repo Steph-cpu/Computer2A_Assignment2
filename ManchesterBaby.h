@@ -46,7 +46,7 @@ private:
 public:
     friend void test01();
     ManchesterBaby();
-    int getAccumulator();
+    int getAccumulator() const;
     void setMemorySize(uint8_t size);
     bool getCode(const string& filename); // load machine code from file
     string fetch();
