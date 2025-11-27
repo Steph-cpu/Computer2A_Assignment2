@@ -87,6 +87,10 @@ bool ManchesterBaby::getCode(const string &filename) {
 
 // fetch the program instruction
 string ManchesterBaby::fetch() {
+    if (pi>=memorySize) {
+        isTerminated=true;
+        return string(32,0);
+    }
     return toBinary(memory[pi++]);
 }
 
