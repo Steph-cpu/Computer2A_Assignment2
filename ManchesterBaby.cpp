@@ -42,6 +42,7 @@ int ManchesterBaby::getAccumulator() const {
 ManchesterBaby::ManchesterBaby()
         : currInst{STP, DIRECT, 0},
           accumulator(0),
+          pc(0),
           pi(0),
           memorySize(32),
           memory(memorySize, 0) {}
@@ -95,22 +96,22 @@ bool ManchesterBaby::getCode(const string &filename) {
 // fetch the program instruction
 int32_t ManchesterBaby::fetch() {
     // check if pi is out of border
-    if (pi>=memorySize) {
+    if (pc>=memorySize) {
         isTerminated=true;
         return 0;
     }
-    return memory[++pi];    // fetch the increased pi (starts from 1)
+    return memory[++pc];    // fetch the increased pi (starts from 1)
 }
 
 void ManchesterBaby::decode() {
-    int32_t instruction = fetch();
+    pi= fetch();    // use program instruction resigter to store
     if (isTerminated) return;   // if fetch caused termination, exit the program
 	// bit 0-7: address (8 bits)
-    currInst.address = instruction & ((1 << 8) - 1);
+    currInst.address = pi & ((1 << 8) - 1);
     // bit 8-9: addressing mode (2 bits)
-    currInst.mode = static_cast<AddressingMode>((instruction >> 8) & ((1 << 2) - 1));
+    currInst.mode = static_cast<AddressingMode>((pi >> 8) & ((1 << 2) - 1));
     // bit 13-16: opcode (4 bits)
-    currInst.opcode = static_cast<Opcode>((instruction >> 13) & ((1 << 4) - 1));
+    currInst.opcode = static_cast<Opcode>((pi >> 13) & ((1 << 4) - 1));
 
     /*
     // Debug output
@@ -161,7 +162,7 @@ void ManchesterBaby::execute() {
             operand = memory[realAddr];     // fetch the value from the real address
             break;
         }
-        // cases for unsupported and invalid  addressing mode
+        // cases for unsupported and invalid addressing mode
         case RESERVED:
         default:
             cout << "Invalid addressing mode: " << static_cast<int>(currInst.mode) << endl;
@@ -193,7 +194,7 @@ void ManchesterBaby::execute() {
             int32_t target = operand;
             // check if the target address is valid
             if (target >= 0 && target < memorySize) {
-                pi = static_cast<uint8_t>(target); // jump to target address
+                pc = static_cast<uint8_t>(target); // jump to target address
             } else {
                 cout << "Invalid jump target: " << target << endl;
                 isTerminated = true;
@@ -201,10 +202,10 @@ void ManchesterBaby::execute() {
             break;
         }
         case JRP: {
-            int32_t newPi = static_cast<int32_t>(pi) + operand;
+            int32_t newPi = static_cast<int32_t>(pc) + operand;
             // check if the new pi is valid
             if (newPi >= 0 && newPi < memorySize) {
-                pi = static_cast<uint8_t>(newPi); // update pi
+                pc = static_cast<uint8_t>(newPi); // update pi
             } else {
                 cout << "Invalid relative jump target: " << newPi << endl;
                 isTerminated = true;
@@ -215,8 +216,8 @@ void ManchesterBaby::execute() {
             // if accumulator < 0, skip next instruction
             if (accumulator < 0) {
                 // check if the next pi is valid
-                if (pi < memorySize) {
-                    ++pi;
+                if (pc < memorySize) {
+                    ++pc;
                 } else {
                     isTerminated = true;
                 }
@@ -226,7 +227,7 @@ void ManchesterBaby::execute() {
             isTerminated = true;    // terminate the program
             break;
         default:
-            cout << "Unknown opcode: "
+            cout << "Program terminated due to unknown opcode: "
                  << static_cast<int>(currInst.opcode) << endl;
             isTerminated = true;
             break;
@@ -245,7 +246,7 @@ void ManchesterBaby::cycle() {
 void ManchesterBaby::getStatus() {
     cout<<"The current status of the Manchester Baby is:"<<endl;
     cout<<"Accumulator: "<<toBinary(accumulator)<<endl;
-    cout<<"Program Instruction Register: "<<(int)pi<<endl;
+    cout<<"Program Instruction Register: "<<(int)pc<<endl;
     cout<<(isTerminated?"The program has terminated.": "The program is still running.")<<endl;
     // print the memory
     for (int i=0;i<memorySize;i++) cout<<"Memory["<<i<<"]: "<<toBinary(memory[i])<<endl;
